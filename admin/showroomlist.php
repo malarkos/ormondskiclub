@@ -3,7 +3,8 @@ session_start ();
 if (! isset ( $_SESSION ['adminmemid'] )) {
 	header ( "Location: bookingadminlogin.php" );
 }
-
+# version 1.0
+# updated 06 Nov 2018
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
