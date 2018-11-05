@@ -3,8 +3,13 @@ session_start ();
 if (! isset ( $_SESSION ['adminmemid'] )) {
 	header ( "Location: bookingadminlogin.php" );
 }
-# version 1.0
+# version 1.1
 # updated 06 Nov 2018
+
+# Version history
+# 1.0 - Original version 06 Nov 2018
+# 1.1 - Enable all people to be Lodge Leaders
+
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -32,21 +37,48 @@ function lowerfirstletter($txt) {
 }
 // functions
 function create_member_list($thisday) {
+    
+    # function to return list of those who can be Lodge Leaders.
+    # current version on returns Members
+    # update to include all members, family members and buddies
 	$form1 = "<td class='ms-column3-even '>";
 	$form1 .= "<form><select>";
 	$form1 .= "<option></option>"; // have blank for manually writing in someone else
-	$query = "SELECT DISTINCT memid FROM booking_rooms WHERE roomnight='$thisday' AND memguest='m' ORDER BY memid";
+	//$query = "SELECT DISTINCT memid FROM booking_rooms WHERE roomnight='$thisday' AND memguest='m' ORDER BY memid"; // get all members who have bookings
+	$query = "SELECT * FROM booking_rooms WHERE roomnight='$thisday' "; // get all entries for that day
 	$result = mysql_query ( $query );
 	$num = mysql_numrows ( $result );
 	
-	for($i = 0; $i < $num; $i ++) {
+	for($i = 0; $i < $num; $i ++) {  // for each entry
 		$memberval = mysql_result ( $result, $i, "memid" );
-		$query1 = "select MemberFirstname, MemberSurname from members where MemberID='$memberval'";
-		$result1 = mysql_query ( $query1 );
-		$firstname = mysql_result ( $result1, 0, "MemberFirstname" );
-		$surname = mysql_result ( $result1, 0, "MemberSurname" );
-		mysql_free_result ( $result1 );
-		$form1 .= "<option>$firstname $surname</option>";
+		$memguest = mysql_result ( $result, $i, "memguest" );
+		
+		
+		if (strcmp ( $memguest, 'm' ) == 0) {
+    		$query1 = "select MemberFirstname, MemberSurname from members where MemberID='$memberval'";
+    		$result1 = mysql_query ( $query1 );
+    		$firstname = mysql_result ( $result1, 0, "MemberFirstname" );
+    		$surname = mysql_result ( $result1, 0, "MemberSurname" );
+    		mysql_free_result ( $result1 );
+    		$form1 .= "<option>$firstname $surname</option>";
+		} 
+		else if ((strcmp ( $memguest, 'f' ) == 0) || (strcmp ( $memguest, 'c' ) == 0)) 
+		{
+		   
+		        $query1 = "select familyMemberFirstname, familyMemberSurname from familymembers where familyMemberID='$memberval'";
+		        $result1 = mysql_query ( $query1 );
+		        $firstname = mysql_result ( $result1, 0, "familyMemberFirstname" );
+		        $surname = mysql_result ( $result1, 0, "familyMemberSurname" );
+		        mysql_free_result ( $result1 );
+		        $form1 .= "<option>$firstname $surname</option>";
+		} 
+		else if ((strcmp ( $memguest, 'b' ) == 0))
+		{
+		    $firstname = mysql_result ( $result, $i, "guestfirstname" );
+		    $surname = mysql_result ( $result, $i, "guestsurname" );
+		    $form1 .= "<option>$firstname $surname</option>";
+		}
+		// now check for all family and buddy members on the booking
 	}
 	$form1 .= "</select></form></td>";
 	return $form1;
@@ -84,6 +116,8 @@ mysql_select_db ( $database ) or die ( "Unable to select database" );
 $form .= "<h4>Room & Job Allocations - Please stay in your assigned rooms!</h4><table>";
 $form .= "<tr><td class='text2'><A href='bookingadmin.php'>Home</a> -- Show Rooms Allocations</td>"; // </tr></table>";
 
+#TODO get from database
+
 $room [0] = "Any";
 $room [1] = "Rm 1";
 $room [2] = "Rm 2";
@@ -116,7 +150,7 @@ $bedmax [13] = "4";
 $bedmax [14] = "4";
 
 if (! isset ( $_SESSION ['startdate'] )) {
-	$startdate = mktime ( 0, 0, 0, 6, 3, 2018 );
+    $startdate = mktime ( 0, 0, 0, 6, 3, 2018 ); #TODO get from database
 	$_SESSION ['startdate'] = $startdate;
 } else {
 	$startdate = $_SESSION ['startdate'];
@@ -139,8 +173,8 @@ $selectdate = date ( "z", $startdate );
 // $form .= "<td class='td2'>Week starting <B>$showDate<b> </td>";
 // $form .= "<td>";
 $form .= "<Form action='roomlistviewchange.php' method='POST'><select name='showweek'>";
-$startselect = mktime ( 0, 0, 0, 6, 3, 2018 );
-$endselect = mktime ( 0, 0, 0, 10, 7, 2018 );
+$startselect = mktime ( 0, 0, 0, 6, 3, 2018 ); #TODO get from database
+$endselect = mktime ( 0, 0, 0, 10, 7, 2018 ); #TODO get from database
 $i = 1;
 for($showselect = $startselect; $showselect < $endselect; $showselect += $weekinc) {
 	$locdate = $showselect + 5 * $dayinc;
@@ -175,7 +209,7 @@ $locdate2 = $locdate + 2 * $dayinc;
 $showfulllocdate = date ( "l d/m/y", $locdate );
 $showfulllocdate2 = date ( "l d/m/y", $locdate2 );
 
-$enddate = mktime ( 0, 0, 0, 10, 7, 2018);
+$enddate = mktime ( 0, 0, 0, 10, 7, 2018); #TODO get from database
 $startdate1 = $startdate - (2 * $dayinc);
 // $startdate1text = date("l d/m/y",$startdate1);
 // echo "Startdate 1 = $startdate1text";
