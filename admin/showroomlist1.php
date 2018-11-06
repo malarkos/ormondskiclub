@@ -2,6 +2,8 @@
 session_start ();
 if (! isset ( $_SESSION ['adminmemid'] )) {
 	header ( "Location: bookingadminlogin.php" );
+	
+	# version history
 }
 
 ?>
