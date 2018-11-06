@@ -47,7 +47,7 @@ function delete_submit_check()
   $retval = mysql_connect($dbhostname, $username, $userpassword);
   mysql_select_db($database) or die("Unable to select database");
   $form = "<table><tr><td><h2>2018 Current Bookings  Page</h2></td></tr>";
-  $form .= "<tr><td class='text2'><A href='bookingadmin.php'>Home</a> -- Current Bookings</td><td><A href='adminbookinglist.php'>Order of Bookings</a></td></tr></table>";
+  $form .= "<tr><td class='text2'><A href='bookingadmin.php'>Home</a> -- Current Bookings -- <A href='adminbookinglist.php'>Order of Bookings</a></td></tr></table>";
   if (isset($_POST['bookingmember'])) {
       $bookingmemberset = true;
   } else {
